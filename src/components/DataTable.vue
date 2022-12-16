@@ -7,7 +7,7 @@
           :items="name"
           label="Filter Name"
           outlined
-          v-model="filter_name"
+          v-model="filterName"
         ></v-select>
       </v-col>
       <v-col cols="12" sm="4">
@@ -15,7 +15,7 @@
           :items="address"
           label="Filter address"
           outlined
-          v-model="filter_address"
+          v-model="filterAddress"
         ></v-select>
       </v-col>
     </v-row>
@@ -216,130 +216,152 @@ export default {
     },
   },
 
-  watch: {
-    dialog(val) {
-      val || this.close();
-    },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-    search() {
-      const _this = this;
-      this.debounce(() => _this.searchInfo())();
-    },
-  },
-
-  created() {
-    this.getData();
-  },
-
-  methods: {
-    async getData(param = "") {
-      let http = `${this.host}/api/companies`;
-      if (param) {
-        http += param;
+    watch: {
+      dialog (val) {
+        val || this.close()
+      },
+      dialogDelete (val) {
+        val || this.closeDelete()
+      },
+      search(){
+        const _this = this
+        this.debounce(() => _this.searchInfo())()
+      },
+      filterAddress(){
+        const param = `?address=${this.filterAddress}`
+        this.getData(param)
+      },
+      filterName(){
+        const param = `?name=${this.filterName}`
+        this.getData(param)
       }
-      const result = await axios.get(http);
-      console.log("result get data: ", result.data);
-      this.companies = result.data;
-      const _this = this;
-      this.companies.forEach((company) => {
-        company.created_at = _this.formatDate(company.created_at);
-        company.updated_at = _this.formatDate(company.updated_at);
-      });
     },
 
-    editItem(item) {
-      this.editedIndex = item.id;
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+    created () {
+      this.getData()
     },
+    methods: {
+      async getData(param = "") {
+        let http = `${this.host}/api/companies`;
+        if (param) {
+          http += param;
+        }
+        const result = await axios.get(http);
+        console.log("result get data: ", result.data);
+        this.companies = result.data;
+        this.handleFormatDate();
+        this.handleFilterDuplicate();
+      },
 
-    deleteItem(item) {
-      this.editedIndex = item.id;
-      this.editedItem = Object.assign({}, item);
-      this.dialogDelete = true;
+      handleFormatDate() {
+        const _this = this;
+        this.companies.forEach((company) => {
+          company.created_at = _this.formatDate(company.created_at);
+          company.updated_at = _this.formatDate(company.updated_at);
+        });
+      },
+
+      handleFilterDuplicate() {
+        const _this = this;
+        this.companies.forEach((company) => {
+          _this.name.push(company.name);
+        });
+        this.companies.forEach((company) => {
+          _this.address.push(company.address);
+        });
+        const filter_name = this.name.filter((value, index) => {
+          return _this.name.indexOf(value) === index;
+        });
+        const filter_address = this.address.filter((value, index) => {
+          return _this.address.indexOf(value) === index;
+        });
+        this.name = filter_name;
+        this.address = filter_address;
+      },
+
+      editItem(item) {
+        this.editedIndex = item.id;
+        this.editedItem = Object.assign({}, item);
+        this.dialog = true;
+      },
+
+      async deleteItemConfirm() {
+        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`);
+        this.getData();
+        this.closeDelete();
+      },
+
+      close() {
+        this.dialog = false;
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem);
+          this.editedIndex = -1;
+        });
+      },
+
+      closeDelete() {
+        this.dialogDelete = false;
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem);
+          this.editedIndex = -1;
+        });
+      },
+
+      async save() {
+        const data = {
+          name: this.editedItem.name,
+          address: this.editedItem.address,
+        };
+        if (this.editedIndex > -1) {
+          await axios.put(
+            `${this.host}/api/companies/${this.editedIndex}`,
+            data
+          );
+        } else {
+          await axios.post(`${this.host}/api/companies`, data);
+        }
+        this.getData();
+        this.close();
+      },
+
+      debounce(func, timeout = 800) {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            func.apply(this, args);
+          }, timeout);
+        };
+      },
+
+      async searchInfo() {
+        const param = `?search=${this.search}`;
+        this.getData(param);
+      },
+
+      formatDate(date) {
+        let arrDate = date.split("-");
+        const year = arrDate[0];
+        const month = arrDate[1];
+        const day = arrDate[2].substr(0, 2);
+        return `${year}-${month}-${day}`;
+      },
+
+      chooseRangeDate() {
+        let startDate = new Date(this.start_date);
+        let endDate = new Date(this.end_date);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+
+        startDate = startDate.toISOString();
+        endDate = endDate.toISOString();
+        console.log("s", startDate);
+        console.log("e", endDate);
+
+        // const param = `?start_date=${startDate}&end_date=${endDate}`
+        // this.getData(param)
+      },
     },
-
-    async deleteItemConfirm() {
-      await axios.delete(`${this.host}/api/companies/${this.editedIndex}`);
-      this.getData();
-      this.closeDelete();
-    },
-
-    close() {
-      this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-    closeDelete() {
-      this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-    async save() {
-      const data = {
-        name: this.editedItem.name,
-        address: this.editedItem.address,
-      };
-      if (this.editedIndex > -1) {
-        await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data);
-      } else {
-        await axios.post(`${this.host}/api/companies`, data);
-      }
-      this.getData();
-      this.close();
-    },
-
-    debounce(func, timeout = 800) {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, timeout);
-      };
-    },
-
-    async searchInfo() {
-      const param = `?search=${this.search}`;
-      this.getData(param);
-    },
-
-    formatDate(date) {
-      let arrDate = date.split("-");
-      const year = arrDate[0];
-      const month = arrDate[1];
-      const day = arrDate[2].substr(0, 2);
-      return `${year}-${month}-${day}`;
-    },
-
-    chooseRangeDate() {
-      let startDate = new Date(this.start_date);
-      let endDate = new Date(this.end_date);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(0, 0, 0, 0);
-
-      startDate = startDate.toISOString();
-      endDate = endDate.toISOString();
-      console.log("s", startDate);
-      console.log("e", endDate);
-
-      // const param = `?start_date=${startDate}&end_date=${endDate}`
-      // this.getData(param)
-    },
-
-    filterAddress() {
-      // const param = `?address=${this.filter_address}`
-      // this.getData(param)
-    },
-  },
 
   // async mounted() {
   //   const time = new Date()
