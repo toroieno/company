@@ -1056,6 +1056,11 @@
   resolved "https://registry.npmjs.org/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
+"@mdi/js@*", "@mdi/js@^7.1.96":
+  version "7.1.96"
+  resolved "https://registry.yarnpkg.com/@mdi/js/-/js-7.1.96.tgz#9c5a7f8a20ea63c03b09a0dba1768fe8b70eeaf9"
+  integrity sha512-wlrJs6Ryhaa5CqhK3FjTfMRnb/s7HeLkKMFqwQySkK86cdN1TGdzpSM3O4tsmzCA1dYBeTbXvOwSE/Y42cUrvA==
+
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
   resolved "https://registry.npmjs.org/@nicolo-ribaudo/eslint-scope-5-internals/-/eslint-scope-5-internals-5.1.1-v1.tgz"
@@ -4020,6 +4025,13 @@ make-dir@^3.0.2, make-dir@^3.1.0:
   integrity sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==
   dependencies:
     semver "^6.0.0"
+
+mdi-vue@^3.0.13:
+  version "3.0.13"
+  resolved "https://registry.yarnpkg.com/mdi-vue/-/mdi-vue-3.0.13.tgz#d3ab6b4b121ed34bedf2fdc92d3e3465dfd0fd36"
+  integrity sha512-QHfRJZfhTA4FLqxBh4Gzxq+U+V/XQLw9l8lSIwJGMY4L+7oP+5HkAd+rsySIGfcHLEZakN3xcYpcroLZAoh0cw==
+  dependencies:
+    "@mdi/js" "*"
 
 mdn-data@2.0.14:
   version "2.0.14"

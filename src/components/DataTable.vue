@@ -1,5 +1,24 @@
 <template>
   <v-container>
+    <v-text-field
+      label="Search"
+      v-model="search"
+      outlined
+    >
+    </v-text-field>
+    <v-row>
+      <v-col cols="12" sm="4">
+        <v-select
+          :items="address"
+          label="Filter address"
+          outlined
+          v-model="filterAddress"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" sm="4">
+        {{ filterAddress }}
+      </v-col>
+    </v-row>
     <v-data-table
       :headers="headers"
       :items="companies"
@@ -17,10 +36,30 @@
             vertical
           ></v-divider>
           <v-spacer></v-spacer>
-          <v-text-field
-            label="Search"
-          >
-          </v-text-field>
+          <v-row justify-self="center" align-self="center">
+            <v-col
+              cols="12"
+              sm="4"
+            >
+              <v-text-field label="start date" v-model="start_date">
+              </v-text-field>
+              <!-- <v-icon>mdi-calendar</v-icon> -->
+            </v-col>
+            <v-col
+              cols="12"
+              sm="4"
+            >
+              <v-text-field label="end date" v-model="end_date">
+
+              </v-text-field>
+            </v-col>
+            <v-col
+              cols="12"
+              sm="4"
+            >
+              <v-btn>choose range date</v-btn>
+            </v-col>
+          </v-row>
           <v-dialog
             v-model="dialog"
             max-width="500px"
@@ -118,7 +157,7 @@
       <template v-slot:no-data>
         <v-btn
           color="primary"
-          @click="initialize"
+          @click="getData"
         >
           Reset
         </v-btn>
@@ -159,6 +198,11 @@ import axios from 'axios';
         address: '',
       },
       host: 'http://127.0.0.1:8000',
+      search: '',
+      start_date: '',
+      end_date: '',
+      address: ['ha noi', 'thanh hoa', 'nam dinh', 'nghe an', 'thai nguyen'],
+      filterAddress: '',
     }),
 
     computed: {
@@ -174,6 +218,10 @@ import axios from 'axios';
       dialogDelete (val) {
         val || this.closeDelete()
       },
+      search(){
+        const _this = this
+        this.debounce(() => _this.searchInfo())()
+      }
     },
 
     created () {
@@ -181,8 +229,12 @@ import axios from 'axios';
     },
 
     methods: {
-      async getData () {
-        const result = await axios.get(`${this.host}/api/companies`)
+      async getData (param = '') {
+        let http = `${this.host}/api/companies`
+        if (param){
+          http += param
+        }
+        const result = await axios.get(http)
         console.log('result get data: ', result.data);
         this.companies = result.data
       },
@@ -227,27 +279,31 @@ import axios from 'axios';
           address: this.editedItem.address,
         }
         if (this.editedIndex > -1) {
-          // Object.assign(this.companies[this.editedIndex], this.editedItem)
           await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
-          // this.getData()
         } else {
-          // const data = {
-          //   name: this.editedItem.name,
-          //   address: this.editedItem.address
-          // }
           await axios.post(`${this.host}/api/companies`, data)
         }
         this.getData()
         this.close()
       },
+
+      debounce(func, timeout = 800){
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+      },
+
+      async searchInfo(){
+        const param = `?search=${this.search}`
+        this.getData(param)
+      }
     },
 
-    async mounted() {
-      // const host = 'http://127.0.0.1:8000'
-      // const result = await axios.get(`${host}/api/companies`)
-      // console.log('result get data: ', result);
-      const time = new Date()
-      console.log('time: ', time);
-    },
+    // async mounted() {
+    //   const time = new Date()
+    //   console.log('time: ', time);
+    // },
   }
 </script>
