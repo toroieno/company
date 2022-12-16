@@ -8,11 +8,11 @@
 </template>
 
 <script>
-// import GetMonthTime from '@/components/GetMonthTime.vue';
-import DataTable from './components/DataTable.vue';
+// import GetMonthTime from "@/components/GetMonthTime.vue";
+import DataTable from "./components/DataTable.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     // GetMonthTime,
     DataTable,
