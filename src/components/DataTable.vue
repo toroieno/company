@@ -196,11 +196,21 @@ export default {
       this.companies = result.data;
     },
 
-    editItem(item) {
-      this.editedIndex = item.id;
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
+    methods: {
+      async getData (param = '') {
+        let http = `${this.host}/api/companies`
+        if (param){
+          http += param
+        }
+        const result = await axios.get(http)
+        console.log('result get data: ', result.data);
+        this.companies = result.data
+        const _this = this
+        this.companies.forEach((company) => {
+          company.created_at = _this.formatDate(company.created_at)
+          company.updated_at = _this.formatDate(company.updated_at)
+        })
+      },
 
     deleteItem(item) {
       this.editedIndex = item.id;
@@ -254,11 +264,19 @@ export default {
       };
     },
 
-    async searchInfo() {
-      const param = `?search=${this.search}`;
-      this.getData(param);
+      async searchInfo(){
+        const param = `?search=${this.search}`
+        this.getData(param)
+      },
+
+      formatDate(date){
+        let arrDate = date.split('-')
+        const year = arrDate[0]
+        const month = arrDate[1]
+        const day = arrDate[2].substr(0, 2)
+        return `${year}-${month}-${day}`
+      }
     },
-  },
 
   // async mounted() {
   //   const time = new Date()
