@@ -12,7 +12,7 @@
           :items="name"
           label="Filter Name"
           outlined
-          v-model="filter_name"
+          v-model="filterName"
         ></v-select>
       </v-col>
       <v-col cols="12" sm="4">
@@ -20,7 +20,7 @@
           :items="address"
           label="Filter address"
           outlined
-          v-model="filter_address"
+          v-model="filterAddress"
         ></v-select>
       </v-col>
     </v-row>
@@ -46,21 +46,47 @@
               cols="12"
               sm="4"
             >
-              <v-text-field 
-                label="start date" 
-                v-model="start_date"
-                prepend-icon="mdi-calendar"
+              <v-menu
+                bottom
+                offset-y
               >
-              </v-text-field>
-              <!-- <v-icon>mdi-calendar</v-icon> -->
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field 
+                      v-bind="attrs"
+                      v-on="on"
+                      label="start date" 
+                      v-model="start_date"
+                      prepend-icon="mdi-calendar"
+                    >
+                    </v-text-field>
+                </template>
+                <v-date-picker
+                    v-model="start_date"
+                  ></v-date-picker>
+              </v-menu>
             </v-col>
             <v-col
               cols="12"
               sm="4"
             >
-              <v-text-field label="end date" v-model="end_date">
-
-              </v-text-field>
+            <v-menu
+              bottom
+              offset-y
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field 
+                  v-bind="attrs"
+                  v-on="on"
+                  label="end date" 
+                  v-model="end_date"
+                  prepend-icon="mdi-calendar"
+                >
+                </v-text-field>
+              </template>
+              <v-date-picker
+                v-model="end_date"
+              ></v-date-picker>
+              </v-menu>
             </v-col>
             <v-col
               cols="12"
@@ -181,6 +207,7 @@ import axios from 'axios';
   export default {
     data: () => ({
       dialog: false,
+      dialogDate: false,
       dialogDelete: false,
       headers: [
         {
@@ -211,9 +238,9 @@ import axios from 'axios';
       start_date: '',
       end_date: '',
       name: [],
-      address: ['ha noi', 'thanh hoa', 'nam dinh', 'nghe an', 'thai nguyen'],
-      filter_address: '',
-      filter_name: ''
+      address: [],
+      filterAddress: '',
+      filterName: ''
     }),
 
     computed: {
@@ -232,6 +259,14 @@ import axios from 'axios';
       search(){
         const _this = this
         this.debounce(() => _this.searchInfo())()
+      },
+      filterAddress(){
+        const param = `?address=${this.filterAddress}`
+        this.getData(param)
+      },
+      filterName(){
+        const param = `?name=${this.filterName}`
+        this.getData(param)
       }
     },
 
@@ -248,11 +283,34 @@ import axios from 'axios';
         const result = await axios.get(http)
         console.log('result get data: ', result.data);
         this.companies = result.data
+        this.handleFormatDate()
+        this.handleFilterDuplicate()
+      },
+
+      handleFormatDate(){
         const _this = this
         this.companies.forEach((company) => {
           company.created_at = _this.formatDate(company.created_at)
           company.updated_at = _this.formatDate(company.updated_at)
         })
+      },
+
+      handleFilterDuplicate() {
+        const _this = this
+        this.companies.forEach(company => {
+          _this.name.push(company.name)
+        })
+        this.companies.forEach(company => {
+          _this.address.push(company.address)
+        })
+        const filter_name = this.name.filter((value, index) => {
+          return _this.name.indexOf(value) === index
+        })
+        const filter_address = this.address.filter((value, index) => {
+          return _this.address.indexOf(value) === index
+        })
+        this.name = filter_name
+        this.address = filter_address
       },
 
       editItem (item) {
@@ -338,11 +396,6 @@ import axios from 'axios';
         // const param = `?start_date=${startDate}&end_date=${endDate}`
         // this.getData(param)
       },
-
-      filterAddress(){
-        // const param = `?address=${this.filter_address}`
-        // this.getData(param)
-      }
     },
 
     // async mounted() {
