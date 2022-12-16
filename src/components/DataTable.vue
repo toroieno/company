@@ -9,14 +9,19 @@
     <v-row>
       <v-col cols="12" sm="4">
         <v-select
-          :items="address"
-          label="Filter address"
+          :items="name"
+          label="Filter Name"
           outlined
-          v-model="filterAddress"
+          v-model="filter_name"
         ></v-select>
       </v-col>
       <v-col cols="12" sm="4">
-        {{ filterAddress }}
+        <v-select
+          :items="address"
+          label="Filter address"
+          outlined
+          v-model="filter_address"
+        ></v-select>
       </v-col>
     </v-row>
     <v-data-table
@@ -61,7 +66,7 @@
               cols="12"
               sm="4"
             >
-              <v-btn>choose range date</v-btn>
+              <v-btn @click="chooseRangeDate()">choose range date</v-btn>
             </v-col>
           </v-row>
           <v-dialog
@@ -205,8 +210,10 @@ import axios from 'axios';
       search: '',
       start_date: '',
       end_date: '',
+      name: [],
       address: ['ha noi', 'thanh hoa', 'nam dinh', 'nghe an', 'thai nguyen'],
-      filterAddress: '',
+      filter_address: '',
+      filter_name: ''
     }),
 
     computed: {
@@ -315,6 +322,26 @@ import axios from 'axios';
         const month = arrDate[1]
         const day = arrDate[2].substr(0, 2)
         return `${year}-${month}-${day}`
+      },
+
+      chooseRangeDate() {
+        let startDate = new Date(this.start_date)
+        let endDate = new Date(this.end_date)
+        startDate.setHours(0,0,0,0)
+        endDate.setHours(0,0,0,0)
+        
+        startDate = startDate.toISOString()
+        endDate = endDate.toISOString()
+        console.log('s', startDate);
+        console.log('e', endDate);
+
+        // const param = `?start_date=${startDate}&end_date=${endDate}`
+        // this.getData(param)
+      },
+
+      filterAddress(){
+        // const param = `?address=${this.filter_address}`
+        // this.getData(param)
       }
     },
 
