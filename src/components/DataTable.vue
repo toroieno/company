@@ -1,11 +1,6 @@
 <template>
   <v-container>
-    <v-text-field
-      label="Search"
-      v-model="search"
-      outlined
-    >
-    </v-text-field>
+    <v-text-field label="Search" v-model="search" outlined> </v-text-field>
     <v-row>
       <v-col cols="12" sm="4">
         <v-select
@@ -31,56 +26,29 @@
       class="elevation-1"
     >
       <template v-slot:top>
-        <v-toolbar
-          flat
-        >
+        <v-toolbar flat>
           <v-toolbar-title>Company</v-toolbar-title>
-          <v-divider
-            class="mx-4"
-            inset
-            vertical
-          ></v-divider>
+          <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-row justify-self="center" align-self="center">
-            <v-col
-              cols="12"
-              sm="4"
-            >
-              <v-text-field 
-                label="start date" 
-                v-model="start_date"
-                prepend-icon="mdi-calendar"
-              >
+            <v-col cols="12" sm="4">
+              <v-text-field label="start date" v-model="start_date">
               </v-text-field>
               <!-- <v-icon>mdi-calendar</v-icon> -->
             </v-col>
-            <v-col
-              cols="12"
-              sm="4"
-            >
-              <v-text-field label="end date" v-model="end_date">
-
-              </v-text-field>
+            <v-col cols="12" sm="4">
+              <v-text-field label="end date" v-model="end_date"> </v-text-field>
             </v-col>
             <v-col
               cols="12"
               sm="4"
             >
-              <v-btn @click="chooseRangeDate()">choose range date</v-btn>
+              <v-btn>choose range date</v-btn>
             </v-col>
           </v-row>
-          <v-dialog
-            v-model="dialog"
-            max-width="500px"
-          >
+          <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
-              >
+              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                 New Company
               </v-btn>
             </template>
@@ -88,25 +56,17 @@
               <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
               </v-card-title>
-  
+
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      md="12"
-                    >
+                    <v-col cols="12" sm="12" md="12">
                       <v-text-field
                         v-model="editedItem.name"
                         label="Name"
                       ></v-text-field>
                     </v-col>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      md="12"
-                    >
+                    <v-col cols="12" sm="12" md="12">
                       <v-text-field
                         v-model="editedItem.address"
                         label="Address"
@@ -115,68 +75,54 @@
                   </v-row>
                 </v-container>
               </v-card-text>
-  
+
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="close"
-                >
+                <v-btn color="blue darken-1" text @click="close">
                   Cancel
                 </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="save"
-                >
-                  Save
-                </v-btn>
+                <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+              <v-card-title class="text-h5"
+                >Are you sure you want to delete this item?</v-card-title
+              >
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancel</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                  >OK</v-btn
+                >
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </v-toolbar>
       </template>
+      <template v-slot:[`item.created_at`]="{ item }">
+        {{ dateTime(item.created_at, "short") }}
+      </template>
+      <template v-slot:[`item.updated_at`]="{ item }">
+        {{ dateTime(item.updated_at, "short") }}
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
+        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
       </template>
       <template v-slot:no-data>
-        <v-btn
-          color="primary"
-          @click="getData"
-        >
-          Reset
-        </v-btn>
+        <v-btn color="primary" @click="getData"> Reset </v-btn>
       </template>
     </v-data-table>
   </v-container>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
   export default {
     data: () => ({
@@ -210,110 +156,128 @@ import axios from 'axios';
       search: '',
       start_date: '',
       end_date: '',
-      name: [],
       address: ['ha noi', 'thanh hoa', 'nam dinh', 'nghe an', 'thai nguyen'],
-      filter_address: '',
-      filter_name: ''
+      filterAddress: '',
     }),
 
-    computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Company' : 'Edit Company'
-      },
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? "New Company" : "Edit Company";
     },
+  },
 
-    watch: {
-      dialog (val) {
-        val || this.close()
-      },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
-      search(){
-        const _this = this
-        this.debounce(() => _this.searchInfo())()
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+    search() {
+      const _this = this;
+      this.debounce(() => _this.searchInfo())();
+    },
+  },
+
+  created() {
+    this.getData();
+  },
+
+  methods: {
+    dateTime(value, type) {
+      if (!value) {
+        return;
       }
+      let temp = new Date(value);
+      if (!(temp instanceof Date) && typeof value == "string") {
+        temp = new Date(parseFloat(value));
+      }
+      return this.$i18n.d(temp, type || "long");
     },
-
-    created () {
-      this.getData()
+    async getData(param = "") {
+      let http = `${this.host}/api/companies`;
+      if (param) {
+        http += param;
+      }
+      const result = await axios.get(http);
+      console.log("result get data: ", result.data);
+      this.companies = result.data;
     },
 
     methods: {
-      async getData (param = '') {
-        let http = `${this.host}/api/companies`
-        if (param){
-          http += param
+      async getData(param = "") {
+        let http = `${this.host}/api/companies`;
+        if (param) {
+          http += param;
         }
-        const result = await axios.get(http)
-        console.log('result get data: ', result.data);
-        this.companies = result.data
-        const _this = this
+        const result = await axios.get(http);
+        console.log("result get data: ", result.data);
+        this.companies = result.data;
+        const _this = this;
         this.companies.forEach((company) => {
-          company.created_at = _this.formatDate(company.created_at)
-          company.updated_at = _this.formatDate(company.updated_at)
-        })
+          company.created_at = _this.formatDate(company.created_at);
+          company.updated_at = _this.formatDate(company.updated_at);
+        });
       },
 
-      editItem (item) {
-        this.editedIndex = item.id
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
+      deleteItem(item) {
+        this.editedIndex = item.id;
+        this.editedItem = Object.assign({}, item);
+        this.dialogDelete = true;
       },
 
-      deleteItem (item) {
-        this.editedIndex = item.id
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
+      async deleteItemConfirm() {
+        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`);
+        this.getData();
+        this.closeDelete();
       },
 
-      async deleteItemConfirm () {
-        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
-        this.getData()
-        this.closeDelete()
-      },
-
-      close () {
-        this.dialog = false
+      close() {
+        this.dialog = false;
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
+          this.editedItem = Object.assign({}, this.defaultItem);
+          this.editedIndex = -1;
+        });
       },
 
-      closeDelete () {
-        this.dialogDelete = false
+      closeDelete() {
+        this.dialogDelete = false;
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
+          this.editedItem = Object.assign({}, this.defaultItem);
+          this.editedIndex = -1;
+        });
       },
 
-      async save () {
+      async save() {
         const data = {
           name: this.editedItem.name,
           address: this.editedItem.address,
-        }
+        };
         if (this.editedIndex > -1) {
-          await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
+          await axios.put(
+            `${this.host}/api/companies/${this.editedIndex}`,
+            data
+          );
         } else {
-          await axios.post(`${this.host}/api/companies`, data)
+          await axios.post(`${this.host}/api/companies`, data);
         }
-        this.getData()
-        this.close()
+        this.getData();
+        this.close();
       },
 
-      debounce(func, timeout = 800){
+      debounce(func, timeout = 800) {
         let timer;
         return (...args) => {
           clearTimeout(timer);
-          timer = setTimeout(() => { func.apply(this, args); }, timeout);
+          timer = setTimeout(() => {
+            func.apply(this, args);
+          }, timeout);
         };
       },
 
-      async searchInfo(){
-        const param = `?search=${this.search}`
-        this.getData(param)
+      async searchInfo() {
+        const param = `?search=${this.search}`;
+        this.getData(param);
       },
 
       formatDate(date){
@@ -322,26 +286,6 @@ import axios from 'axios';
         const month = arrDate[1]
         const day = arrDate[2].substr(0, 2)
         return `${year}-${month}-${day}`
-      },
-
-      chooseRangeDate() {
-        let startDate = new Date(this.start_date)
-        let endDate = new Date(this.end_date)
-        startDate.setHours(0,0,0,0)
-        endDate.setHours(0,0,0,0)
-        
-        startDate = startDate.toISOString()
-        endDate = endDate.toISOString()
-        console.log('s', startDate);
-        console.log('e', endDate);
-
-        // const param = `?start_date=${startDate}&end_date=${endDate}`
-        // this.getData(param)
-      },
-
-      filterAddress(){
-        // const param = `?address=${this.filter_address}`
-        // this.getData(param)
       }
     },
 
@@ -349,5 +293,6 @@ import axios from 'axios';
     //   const time = new Date()
     //   console.log('time: ', time);
     // },
-  }
+  },
+};
 </script>
