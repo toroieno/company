@@ -151,13 +151,14 @@ import axios from 'axios';
       editedItem: {
         name: '',
         address: '',
-        created_at: '',
-        updated_at: ''
+        created_at: '2022-12-16T17:21:53.000000Z',
+        updated_at: '2022-12-16T17:21:53.000000Z'
       },
       defaultItem: {
         name: '',
         address: '',
       },
+      host: 'http://127.0.0.1:8000',
     }),
 
     computed: {
@@ -176,31 +177,31 @@ import axios from 'axios';
     },
 
     created () {
-      this.initialize()
+      this.getData()
     },
 
     methods: {
-      async initialize () {
-        const host = 'http://127.0.0.1:8000'
-        const result = await axios.get(`${host}/api/companies`)
+      async getData () {
+        const result = await axios.get(`${this.host}/api/companies`)
         console.log('result get data: ', result.data);
         this.companies = result.data
       },
 
       editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
+        this.editedIndex = item.id
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },
 
       deleteItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
+        this.editedIndex = item.id
         this.editedItem = Object.assign({}, item)
         this.dialogDelete = true
       },
 
-      deleteItemConfirm () {
-        this.desserts.splice(this.editedIndex, 1)
+      async deleteItemConfirm () {
+        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
+        this.getData()
         this.closeDelete()
       },
 
@@ -220,13 +221,23 @@ import axios from 'axios';
         })
       },
 
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
-        } else {
-          // this.editItem.created_at = 
-          this.desserts.push(this.editedItem)
+      async save () {
+        const data = {
+          name: this.editedItem.name,
+          address: this.editedItem.address,
         }
+        if (this.editedIndex > -1) {
+          // Object.assign(this.companies[this.editedIndex], this.editedItem)
+          await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
+          // this.getData()
+        } else {
+          // const data = {
+          //   name: this.editedItem.name,
+          //   address: this.editedItem.address
+          // }
+          await axios.post(`${this.host}/api/companies`, data)
+        }
+        this.getData()
         this.close()
       },
     },

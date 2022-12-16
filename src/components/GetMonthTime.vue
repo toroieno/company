@@ -71,6 +71,8 @@ import axios from 'axios'
         
         startDay = startDay.toISOString()
         endDay = endDay.toISOString()
+        console.log('s', startDay);
+        console.log('e', endDay);
 
         const result = await axios.get(`http://192.168.4.166:8000/api/companies`, {start_date: startDay, end_date: endDay})
         this.data = result.data
