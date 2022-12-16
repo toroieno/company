@@ -41,7 +41,11 @@
               cols="12"
               sm="4"
             >
-              <v-text-field label="start date" v-model="start_date">
+              <v-text-field 
+                label="start date" 
+                v-model="start_date"
+                prepend-icon="mdi-calendar"
+              >
               </v-text-field>
               <!-- <v-icon>mdi-calendar</v-icon> -->
             </v-col>
@@ -237,6 +241,11 @@ import axios from 'axios';
         const result = await axios.get(http)
         console.log('result get data: ', result.data);
         this.companies = result.data
+        const _this = this
+        this.companies.forEach((company) => {
+          company.created_at = _this.formatDate(company.created_at)
+          company.updated_at = _this.formatDate(company.updated_at)
+        })
       },
 
       editItem (item) {
@@ -298,6 +307,14 @@ import axios from 'axios';
       async searchInfo(){
         const param = `?search=${this.search}`
         this.getData(param)
+      },
+
+      formatDate(date){
+        let arrDate = date.split('-')
+        const year = arrDate[0]
+        const month = arrDate[1]
+        const day = arrDate[2].substr(0, 2)
+        return `${year}-${month}-${day}`
       }
     },
 
