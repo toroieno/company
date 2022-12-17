@@ -23,6 +23,9 @@
           v-model="filterAddress"
         ></v-select>
       </v-col>
+      <v-col>
+        <v-btn @click="getData()">reset</v-btn>
+      </v-col>
     </v-row>
     <v-data-table
       :headers="headers"
@@ -188,6 +191,12 @@
         >
           mdi-delete
         </v-icon>
+        <v-icon
+          small
+          @click="info(item)"
+        >
+          mdi-information
+        </v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn
@@ -203,6 +212,7 @@
 
 <script>
 import axios from 'axios';
+import moment from 'moment';
 
   export default {
     data: () => ({
@@ -375,26 +385,23 @@ import axios from 'axios';
       },
 
       formatDate(date){
-        let arrDate = date.split('-')
-        const year = arrDate[0]
-        const month = arrDate[1]
-        const day = arrDate[2].substr(0, 2)
-        return `${year}-${month}-${day}`
+        const formatDate = moment(date, 'YYYY-MM-DDThh:mm:ss.Z').format('YYYY-MM-DD, HH:mm:ss')
+        return formatDate
       },
 
       chooseRangeDate() {
         let startDate = new Date(this.start_date)
         let endDate = new Date(this.end_date)
         startDate.setHours(0,0,0,0)
-        endDate.setHours(0,0,0,0)
+        endDate.setHours(24,0,0,0)
         
         startDate = startDate.toISOString()
         endDate = endDate.toISOString()
-        console.log('s', startDate);
-        console.log('e', endDate);
+        // console.log('s', startDate);
+        // console.log('e', endDate);
 
-        // const param = `?start_date=${startDate}&end_date=${endDate}`
-        // this.getData(param)
+        const param = `?start_date=${startDate}&end_date=${endDate}`
+        this.getData(param)
       },
     },
 
