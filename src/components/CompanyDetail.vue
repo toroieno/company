@@ -212,7 +212,6 @@
 </template>
 
 <script>
-import router from '@/router';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -407,7 +406,7 @@ import moment from 'moment';
       },
 
       showInfoDepartment(id){
-        router.push({ path: `/companies/${id}`, })
+        this.$router.push({ path: `/companies/${id}`, })
       }
     },
 

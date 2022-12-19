@@ -6,30 +6,9 @@
       outlined
     >
     </v-text-field>
-    <v-row>
-      <v-col cols="12" sm="4">
-        <v-select
-          :items="name"
-          label="Filter Name"
-          outlined
-          v-model="filterName"
-        ></v-select>
-      </v-col>
-      <v-col cols="12" sm="4">
-        <v-select
-          :items="address"
-          label="Filter address"
-          outlined
-          v-model="filterAddress"
-        ></v-select>
-      </v-col>
-      <v-col>
-        <v-btn @click="getData()">reset</v-btn>
-      </v-col>
-    </v-row>
     <v-data-table
       :headers="headers"
-      :items="companies"
+      :items="departments"
       sort-by="calories"
       class="elevation-1"
     >
@@ -37,7 +16,7 @@
         <v-toolbar
           flat
         >
-          <v-toolbar-title>Company</v-toolbar-title>
+          <v-toolbar-title>{{nameCompany}}</v-toolbar-title>
           <v-divider
             class="mx-4"
             inset
@@ -110,7 +89,7 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                New Company
+                New Department
               </v-btn>
             </template>
             <v-card>
@@ -129,16 +108,6 @@
                       <v-text-field
                         v-model="editedItem.name"
                         label="Name"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      md="12"
-                    >
-                      <v-text-field
-                        v-model="editedItem.address"
-                        label="Address"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -212,12 +181,12 @@
 </template>
 
 <script>
-import router from '@/router';
 import axios from 'axios';
 import moment from 'moment';
 
   export default {
     data: () => ({
+      nameCompany: '',
       dialog: false,
       dialogDate: false,
       dialogDelete: false,
@@ -228,18 +197,17 @@ import moment from 'moment';
           value: 'id',
         },
         { text: 'Name', value: 'name' },
-        { text: 'Address', value: 'address' },
         { text: 'Created At', value: 'created_at' },
         { text: 'Updated At', value: 'updated_at' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      companies: [],
+      departments: [],
       editedIndex: -1,
       editedItem: {
         name: '',
         address: '',
-        created_at: '2022-12-16T17:21:53.000000Z',
-        updated_at: '2022-12-16T17:21:53.000000Z'
+        created_at: '',
+        updated_at: ''
       },
       defaultItem: {
         name: '',
@@ -250,14 +218,13 @@ import moment from 'moment';
       start_date: '',
       end_date: '',
       name: [],
-      address: [],
-      filterAddress: '',
-      filterName: ''
+      filterName: '',
+      id_company: null,
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Company' : 'Edit Company'
+        return this.editedIndex === -1 ? 'New Department' : 'Edit Department'
       },
     },
 
@@ -288,22 +255,23 @@ import moment from 'moment';
 
     methods: {
       async getData (param = '') {
-        let http = `${this.host}/api/companies`
+        // let http = `${this.host}/api/departments`
+        let http = `${this.$store.state.test_host}/api/departments`
         if (param){
           http += param
         }
         const result = await axios.get(http)
         console.log('result get data: ', result.data);
-        this.companies = result.data
+        this.departments = result.data
         this.handleFormatDate()
         this.handleFilterDuplicate()
       },
 
       handleFormatDate(){
         const _this = this
-        this.companies.forEach((company) => {
-          company.created_at = _this.formatDate(company.created_at)
-          company.updated_at = _this.formatDate(company.updated_at)
+        this.departments.forEach((department) => {
+          department.created_at = _this.formatDate(department.created_at)
+          department.updated_at = _this.formatDate(department.updated_at)
         })
       },
 
@@ -338,7 +306,8 @@ import moment from 'moment';
       },
 
       async deleteItemConfirm () {
-        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
+        // await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
+        await axios.delete(`${this.$store.state.test_host}/api/departments/${this.editedIndex}`)
         this.getData()
         this.closeDelete()
       },
@@ -362,12 +331,14 @@ import moment from 'moment';
       async save () {
         const data = {
           name: this.editedItem.name,
-          address: this.editedItem.address,
+          company_id: this.id_company,
         }
         if (this.editedIndex > -1) {
-          await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
+          // await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
+          await axios.put(`${this.$store.state.test_host}/api/departments/${this.editedIndex}`, data)
         } else {
-          await axios.post(`${this.host}/api/companies`, data)
+          // await axios.post(`${this.host}/api/companies`, data)
+          await axios.post(`${this.$store.state.test_host}/api/departments`, data)
         }
         this.getData()
         this.close()
@@ -399,20 +370,21 @@ import moment from 'moment';
         
         startDate = startDate.toISOString()
         endDate = endDate.toISOString()
-        // console.log('s', startDate);
-        // console.log('e', endDate);
 
         const param = `?start_date=${startDate}&end_date=${endDate}`
         this.getData(param)
       },
 
       showInfoDepartment(id){
-        router.push({ path: `/companies/${id}`, })
+        this.$router.push({ path: `/companies/${id}`, })
       }
     },
 
-    mounted() {
-      console.log(this.$store.state.count);
+    async mounted() {
+      const path = window.location.pathname
+      this.id_company = path.split('/')[2]
+      const result = await axios.get(`${this.$store.state.host}/api/companies/${this.id_company}`)
+      this.nameCompany = result.data.name
     },
   }
 </script>

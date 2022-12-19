@@ -1,21 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <!-- <GetMonthTime/> -->
-      <DataTable />
+      <router-view></router-view>
+      <!-- <Company /> -->
     </v-main>
   </v-app>
 </template>
 
 <script>
-// import GetMonthTime from "@/components/GetMonthTime.vue";
-import DataTable from "./components/DataTable.vue";
+// import Company from "./components/CompanyDetail.vue";
 
 export default {
   name: "App",
   components: {
     // GetMonthTime,
-    DataTable,
+    // Company,
   },
 };
 </script>
