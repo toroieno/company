@@ -212,7 +212,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { getAllCompanies, addCompany, updateCompany, deleteCompany } from '@/backend';
 import moment from 'moment';
 
   export default {
@@ -287,11 +287,12 @@ import moment from 'moment';
 
     methods: {
       async getData (param = '') {
-        let http = `${this.host}/api/companies`
-        if (param){
-          http += param
-        }
-        const result = await axios.get(http)
+        // let http = `${this.host}/api/companies`
+        // if (param){
+        //   http += param
+        // }
+        // const result = await axios.get(http)
+        const result = await getAllCompanies(param)
         console.log('result get data: ', result.data);
         this.companies = result.data
         this.handleFormatDate()
@@ -337,7 +338,7 @@ import moment from 'moment';
       },
 
       async deleteItemConfirm () {
-        await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
+        await deleteCompany(this.editedIndex)
         this.getData()
         this.closeDelete()
       },
@@ -364,9 +365,9 @@ import moment from 'moment';
           address: this.editedItem.address,
         }
         if (this.editedIndex > -1) {
-          await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
+          await updateCompany(data, this.editedIndex)
         } else {
-          await axios.post(`${this.host}/api/companies`, data)
+          await addCompany(data)
         }
         this.getData()
         this.close()

@@ -16,7 +16,12 @@
         <v-toolbar
           flat
         >
-          <v-toolbar-title>{{nameCompany}}</v-toolbar-title>
+          <v-toolbar-title>
+            <v-breadcrumbs
+              :items="items"
+              large
+            ></v-breadcrumbs>
+          </v-toolbar-title>
           <v-divider
             class="mx-4"
             inset
@@ -181,11 +186,18 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { getAllDepartments, getCompany, addDepartment, updateDepartment, deleteDepartment } from '@/backend';
 import moment from 'moment';
 
   export default {
     data: () => ({
+      items: [
+        {
+          text: 'companies',
+          disabled: false,
+          to: {path: '/'}
+        },
+      ],
       nameCompany: '',
       dialog: false,
       dialogDate: false,
@@ -213,7 +225,6 @@ import moment from 'moment';
         name: '',
         address: '',
       },
-      host: 'http://127.0.0.1:8000',
       search: '',
       start_date: '',
       end_date: '',
@@ -249,19 +260,22 @@ import moment from 'moment';
       }
     },
 
-    created () {
-      this.getData()
+    async created () {
+      const path = window.location.pathname
+      this.id_company = path.split('/')[2]
+      const result = await getCompany(this.id_company)
+      console.log(result);
+      this.nameCompany = result.data.name
+      this.items.push({
+        text: this.nameCompany,
+        disabled: true,
+      })
+      this.getData({company_id: this.id_company})
     },
 
     methods: {
-      async getData (param = '') {
-        // let http = `${this.host}/api/departments`
-        let http = `${this.$store.state.test_host}/api/departments`
-        if (param){
-          http += param
-        }
-        const result = await axios.get(http)
-        console.log('result get data: ', result.data);
+      async getData (params = {}) {
+        const result = await getAllDepartments(params)
         this.departments = result.data
         this.handleFormatDate()
         this.handleFilterDuplicate()
@@ -306,8 +320,7 @@ import moment from 'moment';
       },
 
       async deleteItemConfirm () {
-        // await axios.delete(`${this.host}/api/companies/${this.editedIndex}`)
-        await axios.delete(`${this.$store.state.test_host}/api/departments/${this.editedIndex}`)
+        await deleteDepartment(this.editedIndex)
         this.getData()
         this.closeDelete()
       },
@@ -334,11 +347,9 @@ import moment from 'moment';
           company_id: this.id_company,
         }
         if (this.editedIndex > -1) {
-          // await axios.put(`${this.host}/api/companies/${this.editedIndex}`, data)
-          await axios.put(`${this.$store.state.test_host}/api/departments/${this.editedIndex}`, data)
+          await updateDepartment(data, this.editedIndex)
         } else {
-          // await axios.post(`${this.host}/api/companies`, data)
-          await axios.post(`${this.$store.state.test_host}/api/departments`, data)
+          await addDepartment(data)
         }
         this.getData()
         this.close()
@@ -381,10 +392,7 @@ import moment from 'moment';
     },
 
     async mounted() {
-      const path = window.location.pathname
-      this.id_company = path.split('/')[2]
-      const result = await axios.get(`${this.$store.state.host}/api/companies/${this.id_company}`)
-      this.nameCompany = result.data.name
+      this.getData({company_id: this.id_company})
     },
   }
 </script>
